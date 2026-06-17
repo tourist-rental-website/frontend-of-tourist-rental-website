@@ -39,7 +39,7 @@ const Navbar = () => {
     >
       {/* Brand / Home link */}
       <Link to="/" style={{ fontWeight: "bold", color: "#e94560", fontSize: "18px", textDecoration: "none" }}>
-        UrbanFinder
+        TouristHelper
       </Link>
 
       {/* Public navigation links — visible to everyone */}

@@ -1,7 +1,7 @@
 /**
  * index.css — Global Styles
  *
- * Design system tokens and base styles for UrbanFinder.
+ * Design system tokens and base styles for TouristHelper.
  * Includes light/dark mode support via prefers-color-scheme.
  */
 
@@ -16,7 +16,7 @@
   --accent-border: rgba(233, 69, 96, 0.5);
 
   /* Typography */
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --sans: system-ui, "Segoe UI", Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
   font: 16px/1.5 var(--sans);
@@ -60,15 +60,23 @@ body {
 }
 
 /* Headings */
-h1, h2, h3 {
+h1,
+h2,
+h3 {
   font-family: var(--sans);
   color: var(--text-h);
   margin-top: 0;
 }
 
-h1 { font-size: 2rem; }
-h2 { font-size: 1.5rem; }
-h3 { font-size: 1.15rem; }
+h1 {
+  font-size: 2rem;
+}
+h2 {
+  font-size: 1.5rem;
+}
+h3 {
+  font-size: 1.15rem;
+}
 
 p {
   margin: 0 0 8px;

@@ -1,7 +1,7 @@
 /**
  * App.jsx — Root Application Component
  *
- * Defines all routes for the UrbanFinder platform.
+ * Defines all routes for the TouristHelper platform.
  * Routes are organized into 4 groups:
  *
  *   1. Public routes      — Accessible to everyone (login, register, browse listings)
