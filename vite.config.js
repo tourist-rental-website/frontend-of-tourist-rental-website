@@ -8,4 +8,8 @@ export default defineConfig({
     react(),
     babel({ presets: [reactCompilerPreset()] })
   ],
+  server: {
+    // Must match the origin in Django's CORS_ALLOWED_ORIGINS setting
+    port: 3000,
+  },
 })
