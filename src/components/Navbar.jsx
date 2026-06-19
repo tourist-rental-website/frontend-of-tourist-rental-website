@@ -60,7 +60,7 @@ const Navbar = () => {
           )}
           {user.role === "guide" && (
             <>
-              <Link to="/create-guide-profile" style={linkStyle}>Guide Profile</Link>
+              {/*<Link to="/create-guide-profile" style={linkStyle}>Guide Profile</Link>*/}
               <Link to="/create-package" style={linkStyle}>Create Package</Link>
             </>
           )}

@@ -45,7 +45,7 @@ const PackagesListPage = () => {
   if (error) {
     return <p style={{ color: "red" }}>{error}</p>;
   }
-
+  console.log('packages =', packages);
   return (
     <div>
       <h2>Tour Packages</h2>
