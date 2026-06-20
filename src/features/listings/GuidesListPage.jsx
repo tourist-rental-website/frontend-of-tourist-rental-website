@@ -8,6 +8,7 @@
 
 import { useEffect, useState } from "react";
 import { getGuides } from "../../api/listingsApi";
+import SearchBar from "../../components/SearchBar";
 
 const GuidesListPage = () => {
   const [guides, setGuides] = useState([]);
@@ -16,12 +17,27 @@ const GuidesListPage = () => {
   const [error, setError] = useState("");
   // Track if there are more pages (backend returns 'next' URL when more exist)
   const [hasNext, setHasNext] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Re-fetch guides whenever the page number changes
   useEffect(() => {
     loadGuides();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
+
+  // Filter guides based on search query
+  const filteredGuides = guides.filter((guide) => {
+    const name = `${guide.user?.first_name || ""} ${guide.user?.last_name || ""}`.toLowerCase();
+    const bio = (guide.bio || "").toLowerCase();
+    const location = (guide.location || "").toLowerCase();
+    const query = searchQuery.toLowerCase();
+    
+    return (
+      name.includes(query) ||
+      bio.includes(query) ||
+      location.includes(query)
+    );
+  });
 
   /** Fetch guides for the current page */
   const loadGuides = async () => {
@@ -52,10 +68,16 @@ const GuidesListPage = () => {
     <div>
       <h2>Tour Guides</h2>
 
-      {guides.length === 0 ? (
+      <SearchBar
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        placeholder="Search guides..."
+      />
+
+      {filteredGuides.length === 0 ? (
         <p>No guides found.</p>
       ) : (
-        guides.map((guide) => (
+        filteredGuides.map((guide) => (
           <div
             key={guide.id}
             style={{

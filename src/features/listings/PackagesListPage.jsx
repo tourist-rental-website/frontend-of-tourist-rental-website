@@ -9,6 +9,7 @@
 import { useEffect, useState } from "react";
 import { getPackages } from "../../api/listingsApi";
 import { Link } from "react-router-dom";
+import SearchBar from "../../components/SearchBar";
 
 const PackagesListPage = () => {
   const [packages, setPackages] = useState([]);
@@ -16,7 +17,8 @@ const PackagesListPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [hasNext, setHasNext] = useState(false);
-
+  const [searchQuery, setSearchQuery] = useState("");
+  
   useEffect(() => {
     loadPackages();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -25,7 +27,7 @@ const PackagesListPage = () => {
   /** Fetch packages for the current page */
   const loadPackages = async () => {
     setLoading(true);
-    setError("");
+    setError(""); 
     try {
       const data = await getPackages(page);
       setPackages(data.results || data);
@@ -37,6 +39,20 @@ const PackagesListPage = () => {
       setLoading(false);
     }
   };
+
+  /** Filter packages based on search */
+  const filteredPackages = packages.filter((pkg) => {
+    const title = (pkg.title || "").toLowerCase();
+    const location = (pkg.location || "").toLowerCase();
+    const description = (pkg.description || "").toLowerCase();
+    const query = searchQuery.toLowerCase();
+
+    return (
+      title.includes(query) ||
+      location.includes(query) ||
+      description.includes(query)
+    );
+  });
 
   if (loading) {
     return <p>Loading packages...</p>;
@@ -50,10 +66,16 @@ const PackagesListPage = () => {
     <div>
       <h2>Tour Packages</h2>
 
-      {packages.length === 0 ? (
+      <SearchBar
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        placeholder="Search packages..."
+      />
+
+      {filteredPackages.length === 0 ? (
         <p>No packages found.</p>
       ) : (
-        packages.map((pkg) => (
+        filteredPackages.map((pkg) => (
           <div
             key={pkg.id}
             style={{

@@ -1,13 +1,11 @@
 /**
  * HotelsListPage.jsx — Browse Hotels
- *
- * Public page displaying a paginated list of all hotel profiles.
- * Each card shows the hotel name, description, location, and contact info.
  */
 
 import { useEffect, useState } from "react";
 import { getHotels } from "../../api/listingsApi";
 import { Link } from "react-router-dom";
+import SearchBar from "../../components/SearchBar";
 
 const HotelsListPage = () => {
   const [hotels, setHotels] = useState([]);
@@ -41,40 +39,26 @@ const HotelsListPage = () => {
   const filteredHotels = hotels.filter((hotel) => {
     const name = (hotel.hotel_name || hotel.name || "").toLowerCase();
     const location = (hotel.location || "").toLowerCase();
+    const query = searchQuery.toLowerCase();
 
-    return (
-      name.includes(searchQuery.toLowerCase()) ||
-      location.includes(searchQuery.toLowerCase())
-    );
+    return name.includes(query) || location.includes(query);
   });
-  
-  if (loading) {
-    return <p>Loading hotels...</p>;
-  }
 
-  if (error) {
-    return <p style={{ color: "red" }}>{error}</p>;
-  }
+  if (loading) return <p>Loading hotels...</p>;
+
+  if (error) return <p style={{ color: "red" }}>{error}</p>;
 
   return (
     <div>
       <h2>Hotels</h2>
 
-      <input 
-        type="text"
-        placeholder="Search hotels..."
+      <SearchBar
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
-        style={{ 
-          width: "300px",
-          padding: "10px",
-          borderRadius: "6px",
-          border: "1px solid #ccc",
-          marginBottom: "20px"
-         }}
+        placeholder="Search hotels..."
       />
 
-      {hotels.length === 0 ? (
+      {filteredHotels.length === 0 ? (
         <p>No hotels found.</p>
       ) : (
         filteredHotels.map((hotel) => (
@@ -90,20 +74,36 @@ const HotelsListPage = () => {
           >
             <h3>{hotel.hotel_name || hotel.name}</h3>
             <p>{hotel.description}</p>
-            <p><strong>Location:</strong> {hotel.location}</p>
-            <p><strong>Contact:</strong> {hotel.contact_number || hotel.contact}</p>
-            {/* Link to view rooms for this hotel */}
-            <Link to={`/hotels/${hotel.id}/rooms`}>View Rooms →</Link>
+            <p>
+              <strong>Location:</strong> {hotel.location}
+            </p>
+            <p>
+              <strong>Contact:</strong>{" "}
+              {hotel.contact_number || hotel.contact}
+            </p>
+
+            <Link to={`/hotels/${hotel.id}/rooms`}>
+              View Rooms →
+            </Link>
           </div>
         ))
       )}
 
       {/* Pagination controls */}
-      <div style={{ marginTop: "16px", display: "flex", gap: "10px", alignItems: "center" }}>
+      <div
+        style={{
+          marginTop: "16px",
+          display: "flex",
+          gap: "10px",
+          alignItems: "center",
+        }}
+      >
         <button disabled={page === 1} onClick={() => setPage(page - 1)}>
           ← Previous
         </button>
+
         <span>Page {page}</span>
+
         <button disabled={!hasNext} onClick={() => setPage(page + 1)}>
           Next →
         </button>
