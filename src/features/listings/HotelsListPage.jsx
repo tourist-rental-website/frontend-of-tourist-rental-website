@@ -15,6 +15,7 @@ const HotelsListPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [hasNext, setHasNext] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     loadHotels();
@@ -37,6 +38,16 @@ const HotelsListPage = () => {
     }
   };
 
+  const filteredHotels = hotels.filter((hotel) => {
+    const name = (hotel.hotel_name || hotel.name || "").toLowerCase();
+    const location = (hotel.location || "").toLowerCase();
+
+    return (
+      name.includes(searchQuery.toLowerCase()) ||
+      location.includes(searchQuery.toLowerCase())
+    );
+  });
+  
   if (loading) {
     return <p>Loading hotels...</p>;
   }
@@ -49,10 +60,24 @@ const HotelsListPage = () => {
     <div>
       <h2>Hotels</h2>
 
+      <input 
+        type="text"
+        placeholder="Search hotels..."
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        style={{ 
+          width: "300px",
+          padding: "10px",
+          borderRadius: "6px",
+          border: "1px solid #ccc",
+          marginBottom: "20px"
+         }}
+      />
+
       {hotels.length === 0 ? (
         <p>No hotels found.</p>
       ) : (
-        hotels.map((hotel) => (
+        filteredHotels.map((hotel) => (
           <div
             key={hotel.id}
             style={{
