@@ -13,11 +13,13 @@ const [bookings,setBookings]=useState([]);
 
 
 const loadBookings=async()=>{
-
-const data = await getMyPackageBookings();
-
-setBookings(data);
-
+  try {
+    const data = await getMyPackageBookings();
+    setBookings(data.results || data || []);
+  } catch (error) {
+    console.error("Failed to load package bookings:", error);
+    setBookings([]);
+  }
 };
 
 

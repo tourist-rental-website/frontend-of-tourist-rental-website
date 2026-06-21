@@ -13,11 +13,13 @@ const [bookings,setBookings]=useState([]);
 
 
 const loadBookings=async()=>{
-
-const data = await getMyRoomBookings();
-
-setBookings(data);
-
+  try {
+    const data = await getMyRoomBookings();
+    setBookings(data.results || data || []);
+  } catch (error) {
+    console.error("Failed to load room bookings:", error);
+    setBookings([]);
+  }
 };
 
 
