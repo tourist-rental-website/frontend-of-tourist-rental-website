@@ -42,6 +42,16 @@ export const createGuideProfile = async (data) => {
   return response.data;
 };
 
+/**
+ * Fetch detail of a single guide profile by ID.
+ * @param {number|string} id - Guide Profile ID
+ * @returns {Promise<Object>} Guide details
+ */
+export const getGuideDetails = async (id) => {
+  const response = await axiosInstance.get(`/listings/guides/${id}/`);
+  return response.data;
+};
+
 // ===========================================================================
 // Hotels
 // ===========================================================================
@@ -71,12 +81,26 @@ export const createHotelProfile = async (data) => {
 // ===========================================================================
 
 /**
- * Fetch paginated list of all rooms.
+ * Fetch detail of a single hotel by ID.
+ * @param {number|string} id - Hotel ID
+ * @returns {Promise<Object>} Hotel profile details
+ */
+export const getHotelDetails = async (id) => {
+  const response = await axiosInstance.get(`/listings/hotels/${id}/`);
+  return response.data;
+};
+
+/**
+ * Fetch paginated list of all rooms (optionally filtered by hotel).
+ * @param {number|string|null} hotelId - Hotel ID (optional)
  * @param {number} page - Page number (default: 1)
  * @returns {Promise<Object>} Paginated response with room data
  */
-export const getRooms = async (page = 1) => {
-  const response = await axiosInstance.get(`/listings/rooms/?page=${page}`);
+export const getRooms = async (hotelId = null, page = 1) => {
+  const url = hotelId 
+    ? `/listings/rooms/?hotel=${hotelId}&page=${page}`
+    : `/listings/rooms/?page=${page}`;
+  const response = await axiosInstance.get(url);
   return response.data;
 };
 
@@ -87,6 +111,16 @@ export const getRooms = async (page = 1) => {
  */
 export const createRoom = async (data) => {
   const response = await axiosInstance.post("/listings/rooms/create/", data);
+  return response.data;
+};
+
+/**
+ * Fetch detail of a single room listing by ID.
+ * @param {number|string} id - Room ID
+ * @returns {Promise<Object>} Room details
+ */
+export const getRoomDetails = async (id) => {
+  const response = await axiosInstance.get(`/listings/rooms/${id}/`);
   return response.data;
 };
 
@@ -111,5 +145,15 @@ export const getPackages = async (page = 1) => {
  */
 export const createPackage = async (data) => {
   const response = await axiosInstance.post("/listings/packages/create/", data);
+  return response.data;
+};
+
+/**
+ * Fetch detail of a single tour package by ID.
+ * @param {number|string} id - Package ID
+ * @returns {Promise<Object>} Package details
+ */
+export const getPackageDetails = async (id) => {
+  const response = await axiosInstance.get(`/listings/packages/${id}/`);
   return response.data;
 };

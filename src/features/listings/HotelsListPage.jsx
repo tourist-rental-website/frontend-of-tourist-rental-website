@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { getHotels } from "../../api/listingsApi";
 import { Link } from "react-router-dom";
 import SearchBar from "../../components/SearchBar";
+import { MapPin, Phone, ArrowRight, Building2 } from "lucide-react";
 
 const HotelsListPage = () => {
   const [hotels, setHotels] = useState([]);
@@ -44,67 +45,102 @@ const HotelsListPage = () => {
     return name.includes(query) || location.includes(query);
   });
 
-  if (loading) return <p>Loading hotels...</p>;
+  if (loading) {
+    return (
+      <div style={{ display: "flex", justifyContent: "center", padding: "4rem" }}>
+        <p className="text-muted">Loading hotels...</p>
+      </div>
+    );
+  }
 
-  if (error) return <p style={{ color: "red" }}>{error}</p>;
+  if (error) {
+    return (
+      <div style={{ padding: "2rem", textAlign: "center" }}>
+        <p style={{ color: "var(--accent-color)" }}>{error}</p>
+        <button onClick={loadHotels} className="btn margin-top-md">Try Again</button>
+      </div>
+    );
+  }
 
   return (
     <div>
-      <h2>Hotels</h2>
+      <div className="flex-between margin-bottom-sm">
+        <div>
+          <h1 style={{ marginBottom: "0.25rem" }}>Find Your Dream Stay</h1>
+          <p className="text-muted">Discover and book premium rooms tailored for your travels</p>
+        </div>
+      </div>
 
-      <SearchBar
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        placeholder="Search hotels..."
-      />
+      <div className="search-container">
+        <SearchBar
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search hotels by name or location..."
+        />
+      </div>
 
       {filteredHotels.length === 0 ? (
-        <p>No hotels found.</p>
+        <div style={{ padding: "4rem", textAlign: "center", background: "var(--bg-secondary)", borderRadius: "var(--border-radius-md)", border: "1px dashed var(--border-color)" }}>
+          <p className="text-muted">No hotels match your query.</p>
+        </div>
       ) : (
-        filteredHotels.map((hotel) => (
-          <div
-            key={hotel.id}
-            style={{
-              border: "1px solid #ddd",
-              borderRadius: "8px",
-              padding: "16px",
-              marginBottom: "12px",
-              textAlign: "left",
-            }}
-          >
-            <h3>{hotel.hotel_name || hotel.name}</h3>
-            <p>{hotel.description}</p>
-            <p>
-              <strong>Location:</strong> {hotel.location}
-            </p>
-            <p>
-              <strong>Contact:</strong>{" "}
-              {hotel.contact_number || hotel.contact}
-            </p>
+        <div className="grid-cols-3">
+          {filteredHotels.map((hotel) => (
+            <div key={hotel.id} className="card" style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+              <div className="flex-center" style={{ marginBottom: "1rem", color: "var(--primary-color)" }}>
+                <Building2 size={24} />
+                <h3 style={{ margin: 0, fontSize: "1.2rem", fontWeight: "600", color: "var(--text-primary)" }}>
+                  {hotel.hotel_name || hotel.name}
+                </h3>
+              </div>
+              
+              <p style={{ fontSize: "0.95rem", color: "var(--text-secondary)", flex: 1, marginBottom: "1.5rem" }}>
+                {hotel.description || "Experience standard-setting hospitality in the heart of the city."}
+              </p>
 
-            <Link to={`/hotels/${hotel.id}/rooms`}>
-              View Rooms →
-            </Link>
-          </div>
-        ))
+              <div style={{ borderTop: "1px solid var(--border-color)", paddingTop: "1rem", display: "flex", flexDirection: "column", gap: "0.5rem", marginBottom: "1.5rem" }}>
+                <div className="flex-center text-muted" style={{ fontSize: "0.85rem" }}>
+                  <MapPin size={14} style={{ color: "var(--primary-color)" }} />
+                  <span>{hotel.location || "Location specified upon booking"}</span>
+                </div>
+                {(hotel.contact_number || hotel.contact) && (
+                  <div className="flex-center text-muted" style={{ fontSize: "0.85rem" }}>
+                    <Phone size={14} style={{ color: "var(--primary-color)" }} />
+                    <span>{hotel.contact_number || hotel.contact}</span>
+                  </div>
+                )}
+              </div>
+
+              <Link 
+                to={`/hotels/${hotel.id}/rooms`} 
+                className="btn" 
+                style={{ width: "100%", textDecoration: "none" }}
+              >
+                <span>View Rooms</span>
+                <ArrowRight size={16} />
+              </Link>
+            </div>
+          ))}
+        </div>
       )}
 
       {/* Pagination controls */}
-      <div
-        style={{
-          marginTop: "16px",
-          display: "flex",
-          gap: "10px",
-          alignItems: "center",
-        }}
-      >
-        <button disabled={page === 1} onClick={() => setPage(page - 1)}>
+      <div className="pagination">
+        <button 
+          className="btn btn-secondary" 
+          disabled={page === 1} 
+          onClick={() => setPage(page - 1)}
+          style={{ padding: "0.5rem 1.25rem" }}
+        >
           ← Previous
         </button>
-
-        <span>Page {page}</span>
-
-        <button disabled={!hasNext} onClick={() => setPage(page + 1)}>
+        <span className="page-num">Page {page}</span>
+        <button 
+          className="btn btn-secondary" 
+          disabled={!hasNext} 
+          onClick={() => setPage(page + 1)}
+          style={{ padding: "0.5rem 1.25rem" }}
+        >
           Next →
         </button>
       </div>
