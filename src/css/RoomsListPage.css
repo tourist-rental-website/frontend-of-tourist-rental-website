@@ -1,0 +1,35 @@
+.room-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+  text-align: left;
+}
+
+.availability-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #fff;
+}
+
+.availability-badge.available {
+  background: #28a745;
+}
+
+.availability-badge.not-available {
+  background: #dc3545;
+}
+
+.book-now-link {
+  margin-left: 12px;
+}
+
+.pagination-controls {
+  margin-top: 16px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}

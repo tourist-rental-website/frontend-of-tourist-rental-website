@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { getHotels } from "../../api/listingsApi";
 import { Link } from "react-router-dom";
 import SearchBar from "../../components/SearchBar";
+import "../../css/HotelListPage.css";
 
 const HotelsListPage = () => {
   const [hotels, setHotels] = useState([]);
@@ -14,11 +15,6 @@ const HotelsListPage = () => {
   const [error, setError] = useState("");
   const [hasNext, setHasNext] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-
-  useEffect(() => {
-    loadHotels();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
 
   /** Fetch hotels for the current page */
   const loadHotels = async () => {
@@ -35,6 +31,11 @@ const HotelsListPage = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadHotels();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   const filteredHotels = hotels.filter((hotel) => {
     const name = (hotel.hotel_name || hotel.name || "").toLowerCase();
@@ -62,16 +63,7 @@ const HotelsListPage = () => {
         <p>No hotels found.</p>
       ) : (
         filteredHotels.map((hotel) => (
-          <div
-            key={hotel.id}
-            style={{
-              border: "1px solid #ddd",
-              borderRadius: "8px",
-              padding: "16px",
-              marginBottom: "12px",
-              textAlign: "left",
-            }}
-          >
+          <div key={hotel.id} className="hotel-card">
             <h3>{hotel.hotel_name || hotel.name}</h3>
             <p>{hotel.description}</p>
             <p>
@@ -90,14 +82,7 @@ const HotelsListPage = () => {
       )}
 
       {/* Pagination controls */}
-      <div
-        style={{
-          marginTop: "16px",
-          display: "flex",
-          gap: "10px",
-          alignItems: "center",
-        }}
-      >
+      <div className="pagination-controls">
         <button disabled={page === 1} onClick={() => setPage(page - 1)}>
           ← Previous
         </button>

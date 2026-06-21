@@ -9,6 +9,7 @@
 import { useEffect, useState } from "react";
 import { getRooms } from "../../api/listingsApi";
 import { Link } from "react-router-dom";
+import "../../css/RoomsListPage.css";
 
 const RoomsListPage = () => {
   const [rooms, setRooms] = useState([]);
@@ -16,11 +17,6 @@ const RoomsListPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [hasNext, setHasNext] = useState(false);
-
-  useEffect(() => {
-    loadRooms();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
 
   /** Fetch rooms for the current page */
   const loadRooms = async () => {
@@ -38,6 +34,11 @@ const RoomsListPage = () => {
     }
   };
 
+  useEffect(() => {
+    loadRooms();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
+
   if (loading) {
     return <p>Loading rooms...</p>;
   }
@@ -54,16 +55,7 @@ const RoomsListPage = () => {
         <p>No rooms found.</p>
       ) : (
         rooms.map((room) => (
-          <div
-            key={room.id}
-            style={{
-              border: "1px solid #ddd",
-              borderRadius: "8px",
-              padding: "16px",
-              marginBottom: "12px",
-              textAlign: "left",
-            }}
-          >
+          <div key={room.id} className="room-card">
             <h3>{room.room_type}</h3>
             <p><strong>Price/night:</strong> ${room.price_per_night}</p>
             <p><strong>Capacity:</strong> {room.capacity} guests</p>
@@ -71,15 +63,9 @@ const RoomsListPage = () => {
 
             {/* Availability badge */}
             <span
-              style={{
-                display: "inline-block",
-                padding: "4px 8px",
-                borderRadius: "4px",
-                fontSize: "12px",
-                fontWeight: "bold",
-                color: "#fff",
-                background: room.is_available ? "#28a745" : "#dc3545",
-              }}
+              className={`availability-badge ${
+                room.is_available ? "available" : "not-available"
+              }`}
             >
               {room.is_available ? "Available" : "Not Available"}
             </span>
@@ -88,7 +74,7 @@ const RoomsListPage = () => {
             {room.is_available && (
               <Link
                 to={`/book-room/${room.id}`}
-                style={{ marginLeft: "12px" }}
+                className="book-now-link"
               >
                 Book Now →
               </Link>
@@ -98,7 +84,7 @@ const RoomsListPage = () => {
       )}
 
       {/* Pagination controls */}
-      <div style={{ marginTop: "16px", display: "flex", gap: "10px", alignItems: "center" }}>
+      <div className="pagination-controls">
         <button disabled={page === 1} onClick={() => setPage(page - 1)}>
           ← Previous
         </button>

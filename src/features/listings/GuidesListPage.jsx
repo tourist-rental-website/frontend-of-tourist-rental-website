@@ -9,6 +9,7 @@
 import { useEffect, useState } from "react";
 import { getGuides } from "../../api/listingsApi";
 import SearchBar from "../../components/SearchBar";
+import "../../css/GuideListPage.css";
 
 const GuidesListPage = () => {
   const [guides, setGuides] = useState([]);
@@ -18,6 +19,23 @@ const GuidesListPage = () => {
   // Track if there are more pages (backend returns 'next' URL when more exist)
   const [hasNext, setHasNext] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  /** Fetch guides for the current page */
+  const loadGuides = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const data = await getGuides(page);
+      // Backend may return paginated { results, next, ... } or a plain array
+      setGuides(data.results || data);
+      setHasNext(!!data.next);
+    } catch (err) {
+      setError("Failed to load guides. Please try again.");
+      console.error("Error fetching guides:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Re-fetch guides whenever the page number changes
   useEffect(() => {
@@ -38,23 +56,6 @@ const GuidesListPage = () => {
       location.includes(query)
     );
   });
-
-  /** Fetch guides for the current page */
-  const loadGuides = async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const data = await getGuides(page);
-      // Backend may return paginated { results, next, ... } or a plain array
-      setGuides(data.results || data);
-      setHasNext(!!data.next);
-    } catch (err) {
-      setError("Failed to load guides. Please try again.");
-      console.error("Error fetching guides:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (loading) {
     return <p>Loading guides...</p>;
@@ -78,16 +79,7 @@ const GuidesListPage = () => {
         <p>No guides found.</p>
       ) : (
         filteredGuides.map((guide) => (
-          <div
-            key={guide.id}
-            style={{
-              border: "1px solid #ddd",
-              borderRadius: "8px",
-              padding: "16px",
-              marginBottom: "12px",
-              textAlign: "left",
-            }}
-          >
+          <div key={guide.id} className="guide-card">
             <h3>{guide.user?.first_name} {guide.user?.last_name}</h3>
             <p>{guide.bio}</p>
             <p><strong>Experience:</strong> {guide.experience_years} years</p>
@@ -99,7 +91,7 @@ const GuidesListPage = () => {
       )}
 
       {/* Pagination controls */}
-      <div style={{ marginTop: "16px", display: "flex", gap: "10px", alignItems: "center" }}>
+      <div className="pagination-controls">
         <button disabled={page === 1} onClick={() => setPage(page - 1)}>
           ← Previous
         </button>

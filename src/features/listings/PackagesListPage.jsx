@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { getPackages } from "../../api/listingsApi";
 import { Link } from "react-router-dom";
 import SearchBar from "../../components/SearchBar";
+import "../../css/PackageListPage.css";
 
 const PackagesListPage = () => {
   const [packages, setPackages] = useState([]);
@@ -19,11 +20,6 @@ const PackagesListPage = () => {
   const [hasNext, setHasNext] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   
-  useEffect(() => {
-    loadPackages();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
-
   /** Fetch packages for the current page */
   const loadPackages = async () => {
     setLoading(true);
@@ -39,6 +35,11 @@ const PackagesListPage = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadPackages();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   /** Filter packages based on search */
   const filteredPackages = packages.filter((pkg) => {
@@ -76,16 +77,7 @@ const PackagesListPage = () => {
         <p>No packages found.</p>
       ) : (
         filteredPackages.map((pkg) => (
-          <div
-            key={pkg.id}
-            style={{
-              border: "1px solid #ddd",
-              borderRadius: "8px",
-              padding: "16px",
-              marginBottom: "12px",
-              textAlign: "left",
-            }}
-          >
+          <div key={pkg.id} className="package-card">
             <h3>{pkg.title}</h3>
             <p>{pkg.description}</p>
             <p><strong>Price:</strong> ${pkg.price}</p>
@@ -99,7 +91,7 @@ const PackagesListPage = () => {
       )}
 
       {/* Pagination controls */}
-      <div style={{ marginTop: "16px", display: "flex", gap: "10px", alignItems: "center" }}>
+      <div className="pagination-controls">
         <button disabled={page === 1} onClick={() => setPage(page - 1)}>
           ← Previous
         </button>
