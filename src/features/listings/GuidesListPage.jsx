@@ -45,7 +45,9 @@ const GuidesListPage = () => {
 
   // Filter guides based on search query
   const filteredGuides = guides.filter((guide) => {
-    const name = `${guide.user?.first_name || ""} ${guide.user?.last_name || ""}`.toLowerCase();
+    const firstName = guide.first_name || guide.user?.first_name || "";
+    const lastName = guide.last_name || guide.user?.last_name || "";
+    const name = `${firstName} ${lastName}`.toLowerCase();
     const bio = (guide.bio || "").toLowerCase();
     const location = (guide.location || "").toLowerCase();
     const query = searchQuery.toLowerCase();
@@ -80,7 +82,7 @@ const GuidesListPage = () => {
       ) : (
         filteredGuides.map((guide) => (
           <div key={guide.id} className="guide-card">
-            <h3>{guide.user?.first_name} {guide.user?.last_name}</h3>
+            <h3>{guide.first_name || guide.user?.first_name} {guide.last_name || guide.user?.last_name}</h3>
             <p>{guide.bio}</p>
             <p><strong>Experience:</strong> {guide.experience_years} years</p>
             <p><strong>Languages:</strong> {guide.languages}</p>

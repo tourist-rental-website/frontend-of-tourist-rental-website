@@ -32,7 +32,7 @@ const GuideProfile = ({ user, form, handleChange, handleSubmit, loading }) => {
     try {
       const data = await getGuides(1);
       const list = data.results || data || [];
-      const found = list.find((g) => g.user?.email === user.email);
+      const found = list.find((g) => (g.email || g.user?.email) === user.email);
       if (found) {
         setGuideDetails(found);
       }
@@ -67,7 +67,7 @@ const GuideProfile = ({ user, form, handleChange, handleSubmit, loading }) => {
     return (
       pkg.guide === guideDetails.id ||
       pkg.guide_details?.id === guideDetails.id ||
-      pkg.guide_details?.user?.email === user.email
+      (pkg.guide_details?.email || pkg.guide_details?.user?.email) === user.email
     );
   });
 

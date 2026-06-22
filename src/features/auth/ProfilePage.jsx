@@ -4,6 +4,7 @@ import TravelerProfile from "./components/TravelerProfile";
 import GuideProfile from "./components/GuideProfile";
 import HotelProfile from "./components/HotelProfile";
 import { CheckCircle, XCircle } from "lucide-react";
+import { getMediaUrl } from "../../api/axiosInstance";
 
 /**
  * ProfilePage.jsx — Main User Profile Route Component
@@ -89,7 +90,16 @@ const ProfilePage = () => {
         <div className="profile-sidebar">
           <div className="profile-card">
             <div className="avatar-container">
-              <div className="profile-avatar">{initials}</div>
+              {user.profile_image ? (
+                <img
+                  src={getMediaUrl(user.profile_image)}
+                  alt="Profile Avatar"
+                  className="profile-avatar"
+                  style={{ objectFit: "cover" }}
+                />
+              ) : (
+                <div className="profile-avatar">{initials}</div>
+              )}
             </div>
             <h3 className="profile-name">
               {user.first_name || user.last_name

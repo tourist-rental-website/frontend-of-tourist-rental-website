@@ -38,7 +38,7 @@ const HotelProfile = ({ user, form, handleChange, handleSubmit, loading }) => {
       // Wait, let's look for matching by contact_number or email if present in hotel profile.
       // If we don't have a direct email, let's find the one matching user's last_name or similar if matching structure.
       // In Django backend, HotelProfile usually has a user relation, so let's check `hotel.user?.email` if available.
-      const found = list.find((h) => h.user?.email === user.email);
+      const found = list.find((h) => (h.email || h.user?.email) === user.email);
       if (found) {
         setHotelDetails(found);
       }
@@ -73,7 +73,7 @@ const HotelProfile = ({ user, form, handleChange, handleSubmit, loading }) => {
     return (
       room.hotel === hotelDetails.id ||
       room.hotel_details?.id === hotelDetails.id ||
-      room.hotel_details?.user?.email === user.email
+      (room.hotel_details?.email || room.hotel_details?.user?.email) === user.email
     );
   });
 
