@@ -1,18 +1,21 @@
-/**
- * ProfilePage.jsx — User Profile View & Edit
- *
- * Displays the authenticated user's profile information.
- * Editable fields: first_name, last_name, phone
- * Read-only fields: email, role (shown but disabled)
- */
-
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
+import TravelerProfile from "./components/TravelerProfile";
+import GuideProfile from "./components/GuideProfile";
+import HotelProfile from "./components/HotelProfile";
+import { CheckCircle, XCircle } from "lucide-react";
 
+/**
+ * ProfilePage.jsx — Main User Profile Route Component
+ *
+ * Route path: /profile
+ * Renders traveler, guide, or hotel subcomponents based on user.role
+ * Centralizes authentication and profile update handlers.
+ */
 const ProfilePage = () => {
   const { user, updateProfile } = useAuth();
 
-  // Initialize form with current user data
+  // Initialize profile form with current user settings
   const [form, setForm] = useState({
     first_name: user?.first_name || "",
     last_name: user?.last_name || "",
@@ -22,7 +25,7 @@ const ProfilePage = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  /** Update form field on input change */
+  /** Sync profile input field changes */
   const handleChange = (e) => {
     setForm({
       ...form,
@@ -30,7 +33,7 @@ const ProfilePage = () => {
     });
   };
 
-  /** Submit profile updates */
+  /** Send PATCH update to backend profile endpoint */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
@@ -48,63 +51,104 @@ const ProfilePage = () => {
     }
   };
 
-  // Safety check — shouldn't happen because this is a protected route
   if (!user) {
-    return <p>Loading...</p>;
+    return <p>Loading user profile...</p>;
   }
+
+  // Generate dynamic profile avatar letters
+  const initials =
+    user.first_name && user.last_name
+      ? `${user.first_name[0]}${user.last_name[0]}`.toUpperCase()
+      : user.first_name
+      ? user.first_name[0].toUpperCase()
+      : user.email[0].toUpperCase();
+
+  const getRoleBadgeClass = (role) => {
+    return `profile-role-badge role-${role}`;
+  };
 
   return (
     <div>
-      <h2>Profile</h2>
+      <h2>Account Profile</h2>
 
-      {/* Feedback messages */}
-      {message && <p style={{ color: "green" }}>{message}</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {/* Dynamic Success / Error alerts */}
+      {message && (
+        <div className="feedback-alert feedback-success">
+          <CheckCircle size={16} /> {message}
+        </div>
+      )}
+      {error && (
+        <div className="feedback-alert feedback-error">
+          <XCircle size={16} /> {error}
+        </div>
+      )}
 
-      <form onSubmit={handleSubmit}>
-        {/* Read-only fields */}
-        <div style={{ marginBottom: "10px" }}>
-          <label>Email </label>
-          <input value={user.email} disabled />
+      {/* Split layout: sidebar details card + action panels */}
+      <div className="profile-layout">
+        {/* Sidebar Info Card */}
+        <div className="profile-sidebar">
+          <div className="profile-card">
+            <div className="avatar-container">
+              <div className="profile-avatar">{initials}</div>
+            </div>
+            <h3 className="profile-name">
+              {user.first_name || user.last_name
+                ? `${user.first_name} ${user.last_name}`
+                : "Welcome Traveler"}
+            </h3>
+            <span className={getRoleBadgeClass(user.role)}>
+              {user.role}
+            </span>
+
+            <div className="profile-stats">
+              <div className="stat-item">
+                <span>Email Address</span>
+                <span className="stat-val" style={{ fontSize: "12px" }}>
+                  {user.email}
+                </span>
+              </div>
+              {user.phone && (
+                <div className="stat-item">
+                  <span>Phone Number</span>
+                  <span className="stat-val">{user.phone}</span>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
-        <div style={{ marginBottom: "10px" }}>
-          <label>Role </label>
-          <input value={user.role} disabled />
-        </div>
+        {/* Subcomponent panels per user role */}
+        <div>
+          {user.role === "traveler" && (
+            <TravelerProfile
+              form={form}
+              handleChange={handleChange}
+              handleSubmit={handleSubmit}
+              loading={loading}
+            />
+          )}
 
-        {/* Editable fields */}
-        <div style={{ marginBottom: "10px" }}>
-          <label>First Name </label>
-          <input
-            name="first_name"
-            value={form.first_name}
-            onChange={handleChange}
-          />
-        </div>
+          {user.role === "guide" && (
+            <GuideProfile
+              user={user}
+              form={form}
+              handleChange={handleChange}
+              handleSubmit={handleSubmit}
+              loading={loading}
+            />
+          )}
 
-        <div style={{ marginBottom: "10px" }}>
-          <label>Last Name </label>
-          <input
-            name="last_name"
-            value={form.last_name}
-            onChange={handleChange}
-          />
+          {user.role === "hotel" && (
+            <HotelProfile
+              user={user}
+              form={form}
+              handleChange={handleChange}
+              handleSubmit={handleSubmit}
+              loading={loading}
+            />
+          )}
         </div>
-
-        <div style={{ marginBottom: "10px" }}>
-          <label>Phone </label>
-          <input
-            name="phone"
-            value={form.phone}
-            onChange={handleChange}
-          />
-        </div>
-
-        <button type="submit" disabled={loading}>
-          {loading ? "Updating..." : "Update Profile"}
-        </button>
-      </form>
+      </div>
     </div>
   );
 };
