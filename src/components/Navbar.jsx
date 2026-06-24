@@ -88,21 +88,20 @@ const Navbar = () => {
           >
             Packages
           </Link>
+          {user && (
+            <Link
+              to="/conversations"
+              className={`nav-link ${isActive("/conversations") ? "active" : ""}`}
+            >
+              Chat
+            </Link>
+          )}
         </nav>
 
         {/* Authenticated Actions or Auth Links (Desktop) */}
         <div className="navbar-actions">
           {user ? (
             <>
-              {/* Chat Icon Link */}
-              <Link
-                to="/conversations"
-                className="nav-icon-btn"
-                title="Chat Conversations"
-              >
-                <MessageSquare size={20} />
-              </Link>
-
               {/* Notifications Icon Link with Pulsing Badge */}
               <Link
                 to="/notifications"
