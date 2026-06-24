@@ -1,26 +1,16 @@
 /**
  * RegisterPage.jsx — User Registration Form
- *
- * Allows new users to create an account.
- * Fields: email, password, first_name, last_name, phone, role
- *
- * The role selector determines what the user can do:
- *   - traveler: Book rooms and packages
- *   - guide:    Create guide profiles and tour packages
- *   - hotel:    Create hotel profiles and rooms
- *
- * On success, auto-logs in and redirects to home.
  */
 
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
+import { Mail, Lock, User, Phone, UserPlus } from "lucide-react";
 
 const RegisterPage = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
 
-  // Form state — controlled inputs
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -32,7 +22,6 @@ const RegisterPage = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  /** Update form field on input change */
   const handleChange = (e) => {
     setForm({
       ...form,
@@ -40,7 +29,6 @@ const RegisterPage = () => {
     });
   };
 
-  /** Submit registration data */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -49,12 +37,10 @@ const RegisterPage = () => {
       await register(form);
       navigate("/");
     } catch (err) {
-      // Show backend validation errors (e.g., "email already exists")
       const data = err.response?.data;
       if (data && typeof data === "object") {
-        // Backend may return field-level errors like { email: ["already exists"] }
         const messages = Object.values(data).flat().join(". ");
-        setError(messages || "Registration failed");
+        setError(messages || "Registration failed. Please check inputs.");
       } else {
         setError("Registration failed. Please try again.");
       }
@@ -64,87 +50,157 @@ const RegisterPage = () => {
   };
 
   return (
-    <div>
-      <h2>Register</h2>
-
-      {/* Display error message if registration fails */}
-      {error && <p style={{ color: "red" }}>{error}</p>}
-
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: "10px" }}>
-          <input
-            name="email"
-            type="email"
-            placeholder="Email"
-            value={form.email}
-            onChange={handleChange}
-            required
-          />
+    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "80vh", padding: "2rem 1rem" }}>
+      <div className="card glass-card" style={{ width: "100%", maxWidth: "560px", padding: "2.5rem" }}>
+        
+        {/* Header Title */}
+        <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+          <h2 style={{ margin: "0 0 0.5rem", fontSize: "1.75rem", fontFamily: "var(--font-display)" }}>Create Account</h2>
+          <p className="text-muted" style={{ fontSize: "0.9rem" }}>Join TouristHelper to plan tours or list bookings</p>
         </div>
 
-        <div style={{ marginBottom: "10px" }}>
-          <input
-            name="password"
-            type="password"
-            placeholder="Password"
-            value={form.password}
-            onChange={handleChange}
-            required
-          />
-        </div>
+        {/* Error Banner */}
+        {error && (
+          <div style={{ padding: "0.75rem 1rem", color: "var(--accent-color)", background: "rgba(244, 63, 94, 0.1)", borderRadius: "var(--border-radius-sm)", marginBottom: "1.5rem", fontSize: "0.85rem", borderLeft: "4px solid var(--accent-color)" }}>
+            {error}
+          </div>
+        )}
 
-        <div style={{ marginBottom: "10px" }}>
-          <input
-            name="first_name"
-            placeholder="First Name"
-            value={form.first_name}
-            onChange={handleChange}
-            required
-          />
-        </div>
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.2rem" }}>
+          
+          {/* First & Last Name Row */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+            <div>
+              <label htmlFor="first_name" style={{ display: "block", fontSize: "0.85rem", fontWeight: "600", color: "var(--text-primary)", marginBottom: "0.5rem" }}>
+                First Name
+              </label>
+              <div style={{ position: "relative" }}>
+                <input
+                  id="first_name"
+                  name="first_name"
+                  placeholder="John"
+                  value={form.first_name}
+                  onChange={handleChange}
+                  required
+                  style={{ paddingLeft: "2.5rem" }}
+                />
+                <User size={16} style={{ position: "absolute", left: "0.9rem", top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)" }} />
+              </div>
+            </div>
 
-        <div style={{ marginBottom: "10px" }}>
-          <input
-            name="last_name"
-            placeholder="Last Name"
-            value={form.last_name}
-            onChange={handleChange}
-            required
-          />
-        </div>
+            <div>
+              <label htmlFor="last_name" style={{ display: "block", fontSize: "0.85rem", fontWeight: "600", color: "var(--text-primary)", marginBottom: "0.5rem" }}>
+                Last Name
+              </label>
+              <div style={{ position: "relative" }}>
+                <input
+                  id="last_name"
+                  name="last_name"
+                  placeholder="Doe"
+                  value={form.last_name}
+                  onChange={handleChange}
+                  required
+                  style={{ paddingLeft: "2.5rem" }}
+                />
+                <User size={16} style={{ position: "absolute", left: "0.9rem", top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)" }} />
+              </div>
+            </div>
+          </div>
 
-        <div style={{ marginBottom: "10px" }}>
-          <input
-            name="phone"
-            placeholder="Phone"
-            value={form.phone}
-            onChange={handleChange}
-          />
-        </div>
+          {/* Email field */}
+          <div>
+            <label htmlFor="email" style={{ display: "block", fontSize: "0.85rem", fontWeight: "600", color: "var(--text-primary)", marginBottom: "0.5rem" }}>
+              Email Address
+            </label>
+            <div style={{ position: "relative" }}>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                placeholder="you@example.com"
+                value={form.email}
+                onChange={handleChange}
+                required
+                style={{ paddingLeft: "2.5rem" }}
+              />
+              <Mail size={16} style={{ position: "absolute", left: "0.9rem", top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)" }} />
+            </div>
+          </div>
 
-        <div style={{ marginBottom: "10px" }}>
-          <label htmlFor="role-select">Role: </label>
-          <select
-            id="role-select"
-            name="role"
-            value={form.role}
-            onChange={handleChange}
+          {/* Password field */}
+          <div>
+            <label htmlFor="password" style={{ display: "block", fontSize: "0.85rem", fontWeight: "600", color: "var(--text-primary)", marginBottom: "0.5rem" }}>
+              Password
+            </label>
+            <div style={{ position: "relative" }}>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                placeholder="•••••••• (Min 8 characters)"
+                value={form.password}
+                onChange={handleChange}
+                required
+                style={{ paddingLeft: "2.5rem" }}
+              />
+              <Lock size={16} style={{ position: "absolute", left: "0.9rem", top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)" }} />
+            </div>
+          </div>
+
+          {/* Phone field */}
+          <div>
+            <label htmlFor="phone" style={{ display: "block", fontSize: "0.85rem", fontWeight: "600", color: "var(--text-primary)", marginBottom: "0.5rem" }}>
+              Phone Number
+            </label>
+            <div style={{ position: "relative" }}>
+              <input
+                id="phone"
+                name="phone"
+                placeholder="+1 (555) 000-0000"
+                value={form.phone}
+                onChange={handleChange}
+                style={{ paddingLeft: "2.5rem" }}
+              />
+              <Phone size={16} style={{ position: "absolute", left: "0.9rem", top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)" }} />
+            </div>
+          </div>
+
+          {/* Role selector field */}
+          <div>
+            <label htmlFor="role-select" style={{ display: "block", fontSize: "0.85rem", fontWeight: "600", color: "var(--text-primary)", marginBottom: "0.5rem" }}>
+              Account Role
+            </label>
+            <select
+              id="role-select"
+              name="role"
+              value={form.role}
+              onChange={handleChange}
+              style={{ width: "100%", padding: "0.75rem 1rem", border: "1px solid var(--border-color)", borderRadius: "var(--border-radius-sm)", backgroundColor: "var(--bg-secondary)", color: "var(--text-primary)" }}
+            >
+              <option value="traveler">Traveler — Book Hotels & Guides</option>
+              <option value="guide">Guide — Sell Tour Packages</option>
+              <option value="hotel">Hotel Owner — List Hotel Rooms</option>
+            </select>
+          </div>
+
+          {/* Submit Button */}
+          <button 
+            type="submit" 
+            className="btn" 
+            style={{ width: "100%", marginTop: "1rem" }} 
+            disabled={loading}
           >
-            <option value="traveler">Traveler</option>
-            <option value="guide">Guide</option>
-            <option value="hotel">Hotel</option>
-          </select>
-        </div>
+            <UserPlus size={16} />
+            <span>{loading ? "Creating account..." : "Register"}</span>
+          </button>
+        </form>
 
-        <button type="submit" disabled={loading}>
-          {loading ? "Registering..." : "Register"}
-        </button>
-      </form>
-
-      <p style={{ marginTop: "16px" }}>
-        Already have an account?{" "}
-        <Link to="/login">Login</Link>
-      </p>
+        {/* Footer Links */}
+        <p style={{ marginTop: "2rem", textAlign: "center", fontSize: "0.9rem" }} className="text-muted">
+          Already have an account?{" "}
+          <Link to="/login" style={{ fontWeight: "600", color: "var(--primary-color)" }}>Login here</Link>
+        </p>
+      </div>
     </div>
   );
 };
