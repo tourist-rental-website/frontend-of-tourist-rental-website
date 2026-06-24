@@ -1,39 +1,54 @@
+/**
+ * listingsApi.js — Listings CRUD API
+ *
+ * Handles all listing-related endpoints:
+ *   - Guides:   GET (public) + POST (role=guide)
+ *   - Hotels:   GET (public) + POST (role=hotel)
+ *   - Rooms:    GET (public) + POST (role=hotel)
+ *   - Packages: GET (public) + POST (role=guide)
+ *
+ * All GET endpoints are public (no auth required).
+ * All POST/create endpoints require JWT + correct user role.
+ *
+ * The backend paginates results with PAGE_SIZE=20.
+ * Pass ?page=N to navigate pages.
+ */
+
 import axiosInstance from "./axiosInstance";
 
 // ===========================================================================
 // Guides
 // ===========================================================================
 
+/**
+ * Fetch paginated list of all guide profiles.
+ * @param {number} page - Page number (default: 1)
+ * @returns {Promise<Object>} Paginated response: { count, next, previous, results }
+ */
 export const getGuides = async (page = 1) => {
+  // BUG FIX: Was using regular quotes "..." which don't interpolate ${page}.
+  // Must use backtick template literals for string interpolation.
   const response = await axiosInstance.get(`/listings/guides/?page=${page}`);
   return response.data;
 };
 
-export const getGuideProfile = async () => {
-  const response = await axiosInstance.get("/listings/guides/update/");
+/**
+ * Create a new guide profile for the authenticated guide user.
+ * @param {Object} data - { bio, experience_years, languages, location, price_per_day }
+ * @returns {Promise<Object>} Created guide profile
+ */
+export const createGuideProfile = async (data) => {
+  const response = await axiosInstance.post("/listings/guides/create/", data);
   return response.data;
 };
 
-export const updateGuideProfile = async (data) => {
-  const formData = new FormData();
-
-  Object.entries(data).forEach(([key, val]) => {
-    if (val !== null && val !== undefined) {
-      if (key === "profile_image" && !(val instanceof File)) {
-        return;
-      }
-      formData.append(key, val);
-    }
-  });
-
-  const response = await axiosInstance.patch(
-    "/listings/guides/update/",
-    formData,
-    {
-      headers: { "Content-Type": "multipart/form-data" },
-    }
-  );
-
+/**
+ * Fetch detail of a single guide profile by ID.
+ * @param {number|string} id - Guide Profile ID
+ * @returns {Promise<Object>} Guide details
+ */
+export const getGuideDetails = async (id) => {
+  const response = await axiosInstance.get(`/listings/guides/${id}/`);
   return response.data;
 };
 
@@ -41,28 +56,23 @@ export const updateGuideProfile = async (data) => {
 // Hotels
 // ===========================================================================
 
+/**
+ * Fetch paginated list of all hotel profiles.
+ * @param {number} page - Page number (default: 1)
+ * @returns {Promise<Object>} Paginated response with hotel data
+ */
 export const getHotels = async (page = 1) => {
   const response = await axiosInstance.get(`/listings/hotels/?page=${page}`);
   return response.data;
 };
 
+/**
+ * Create a new hotel profile for the authenticated hotel user.
+ * @param {Object} data - { hotel_name, description, location, contact_number }
+ * @returns {Promise<Object>} Created hotel profile
+ */
 export const createHotelProfile = async (data) => {
-  const formData = new FormData();
-
-  Object.entries(data).forEach(([key, val]) => {
-    if (val !== null && val !== undefined) {
-      formData.append(key, val);
-    }
-  });
-
-  const response = await axiosInstance.post(
-    "/listings/hotels/create/",
-    formData,
-    {
-      headers: { "Content-Type": "multipart/form-data" },
-    }
-  );
-
+  const response = await axiosInstance.post("/listings/hotels/create/", data);
   return response.data;
 };
 
@@ -70,13 +80,47 @@ export const createHotelProfile = async (data) => {
 // Rooms
 // ===========================================================================
 
-export const getRooms = async (page = 1) => {
-  const response = await axiosInstance.get(`/listings/rooms/?page=${page}`);
+/**
+ * Fetch detail of a single hotel by ID.
+ * @param {number|string} id - Hotel ID
+ * @returns {Promise<Object>} Hotel profile details
+ */
+export const getHotelDetails = async (id) => {
+  const response = await axiosInstance.get(`/listings/hotels/${id}/`);
   return response.data;
 };
 
+/**
+ * Fetch paginated list of all rooms (optionally filtered by hotel).
+ * @param {number|string|null} hotelId - Hotel ID (optional)
+ * @param {number} page - Page number (default: 1)
+ * @returns {Promise<Object>} Paginated response with room data
+ */
+export const getRooms = async (hotelId = null, page = 1) => {
+  const url = hotelId 
+    ? `/listings/rooms/?hotel=${hotelId}&page=${page}`
+    : `/listings/rooms/?page=${page}`;
+  const response = await axiosInstance.get(url);
+  return response.data;
+};
+
+/**
+ * Create a new room listing (hotel users only).
+ * @param {Object} data - { room_type, price_per_night, capacity, description, is_available }
+ * @returns {Promise<Object>} Created room
+ */
 export const createRoom = async (data) => {
   const response = await axiosInstance.post("/listings/rooms/create/", data);
+  return response.data;
+};
+
+/**
+ * Fetch detail of a single room listing by ID.
+ * @param {number|string} id - Room ID
+ * @returns {Promise<Object>} Room details
+ */
+export const getRoomDetails = async (id) => {
+  const response = await axiosInstance.get(`/listings/rooms/${id}/`);
   return response.data;
 };
 
@@ -84,55 +128,32 @@ export const createRoom = async (data) => {
 // Packages
 // ===========================================================================
 
+/**
+ * Fetch paginated list of all tour packages.
+ * @param {number} page - Page number (default: 1)
+ * @returns {Promise<Object>} Paginated response with package data
+ */
 export const getPackages = async (page = 1) => {
   const response = await axiosInstance.get(`/listings/packages/?page=${page}`);
   return response.data;
 };
 
+/**
+ * Create a new tour package (guide users only).
+ * @param {Object} data - { title, description, price, duration_days, location }
+ * @returns {Promise<Object>} Created package
+ */
 export const createPackage = async (data) => {
   const response = await axiosInstance.post("/listings/packages/create/", data);
   return response.data;
 };
 
-// ===========================================================================
-// Image Uploads
-// ===========================================================================
-
-export const uploadHotelImages = async (hotelId, imageFiles) => {
-  const formData = new FormData();
-  imageFiles.forEach((file) => formData.append("images", file));
-
-  const response = await axiosInstance.post(
-    `/listings/hotels/${hotelId}/images/`,
-    formData,
-    { headers: { "Content-Type": "multipart/form-data" } }
-  );
-
-  return response.data;
-};
-
-export const uploadRoomImages = async (roomId, imageFiles) => {
-  const formData = new FormData();
-  imageFiles.forEach((file) => formData.append("images", file));
-
-  const response = await axiosInstance.post(
-    `/listings/rooms/${roomId}/images/`,
-    formData,
-    { headers: { "Content-Type": "multipart/form-data" } }
-  );
-
-  return response.data;
-};
-
-export const uploadPackageImages = async (packageId, imageFiles) => {
-  const formData = new FormData();
-  imageFiles.forEach((file) => formData.append("images", file));
-
-  const response = await axiosInstance.post(
-    `/listings/packages/${packageId}/images/`,
-    formData,
-    { headers: { "Content-Type": "multipart/form-data" } }
-  );
-
+/**
+ * Fetch detail of a single tour package by ID.
+ * @param {number|string} id - Package ID
+ * @returns {Promise<Object>} Package details
+ */
+export const getPackageDetails = async (id) => {
+  const response = await axiosInstance.get(`/listings/packages/${id}/`);
   return response.data;
 };

@@ -24,23 +24,6 @@ const axiosInstance = axios.create({
   },
 });
 
-export const getMediaUrl = (path) => {
-  if (!path) return null;
-  // If the backend already returns a full URL, don't double-prefix
-  if (path.startsWith('http')) return path;
-  
-  // Clean up any leading slash or duplicated media/ folder prefix
-  let cleanPath = path;
-  if (cleanPath.startsWith('/')) {
-    cleanPath = cleanPath.substring(1);
-  }
-  if (cleanPath.startsWith('media/')) {
-    cleanPath = cleanPath.substring(6);
-  }
-  
-  return `${import.meta.env.VITE_MEDIA_URL}/${cleanPath}`;
-};
-
 // ---------------------------------------------------------------------------
 // Request Interceptor — Attach JWT Token
 // ---------------------------------------------------------------------------
