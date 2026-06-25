@@ -12,6 +12,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 // FIX: Corrected import path — was "../../../api/" (3 levels), should be "../../api/" (2 levels)
 import { createHotelProfile } from "../../api/listingsApi";
+import { getErrorMessage } from "../../utils/errorUtils";
 
 const CreateHotelProfilePage = () => {
   const navigate = useNavigate();
@@ -42,11 +43,7 @@ const CreateHotelProfilePage = () => {
       await createHotelProfile(form);
       navigate("/hotels");
     } catch (err) {
-      setError(
-        err.response?.data?.detail ||
-        err.response?.data?.error ||
-        "Failed to create hotel profile"
-      );
+      setError(getErrorMessage(err, "Failed to create hotel profile"));
     } finally {
       setLoading(false);
     }

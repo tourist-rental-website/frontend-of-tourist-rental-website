@@ -12,6 +12,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 // FIX: Corrected import path — was "../../../api/" (3 levels), should be "../../api/" (2 levels)
 import { createPackage } from "../../api/listingsApi";
+import { getErrorMessage } from "../../utils/errorUtils";
 
 const CreatePackagePage = () => {
   const navigate = useNavigate();
@@ -43,11 +44,7 @@ const CreatePackagePage = () => {
       await createPackage(form);
       navigate("/packages");
     } catch (err) {
-      setError(
-        err.response?.data?.detail ||
-        err.response?.data?.error ||
-        "Failed to create package. Make sure you have a guide profile first."
-      );
+      setError(getErrorMessage(err, "Failed to create package. Make sure you have a guide profile first."));
     } finally {
       setLoading(false);
     }

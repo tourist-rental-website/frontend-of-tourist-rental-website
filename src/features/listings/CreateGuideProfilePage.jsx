@@ -12,6 +12,7 @@ import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { updateProfile } from "../../api/authApi";
 import { Camera, Upload, X } from "lucide-react";
+import { getErrorMessage } from "../../utils/errorUtils";
 
 const CreateGuideProfilePage = () => {
   const navigate = useNavigate();
@@ -79,11 +80,7 @@ const CreateGuideProfilePage = () => {
       await updateProfile(formData);
       navigate("/guides");
     } catch (err) {
-      setError(
-        err.response?.data?.detail ||
-        err.response?.data?.error ||
-        "Failed to create guide profile"
-      );
+      setError(getErrorMessage(err, "Failed to create guide profile"));
     } finally {
       setLoading(false);
     }

@@ -118,7 +118,26 @@ export const getRooms = async (hotelId = null, page = 1) => {
  * @returns {Promise<Object>} Created room
  */
 export const createRoom = async (data) => {
-  const response = await axiosInstance.post("/listings/rooms/create/", data);
+  const response = await axiosInstance.post("/listings/rooms/", data);
+  return response.data;
+};
+
+/**
+ * Upload images to an existing room.
+ * Endpoint: POST /listings/rooms/<roomId>/images/
+ * @param {number|string} roomId - The room to attach images to
+ * @param {File[]} files - Array of image File objects
+ * @returns {Promise<Object>} { message, image_ids }
+ */
+export const uploadRoomImages = async (roomId, files) => {
+  const formData = new FormData();
+  files.forEach((file) => formData.append("images", file));
+
+  const response = await axiosInstance.post(
+    `/listings/rooms/${roomId}/images/`,
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } }
+  );
   return response.data;
 };
 

@@ -8,13 +8,22 @@ import { Link } from "react-router-dom";
 import SearchBar from "../../components/SearchBar";
 import { MapPin, Phone, ArrowRight, Building2 } from "lucide-react";
 
+import { useAuth } from "../../context/AuthContext";
+import { Navigate } from "react-router-dom";
+
 const HotelsListPage = () => {
+  const { user } = useAuth();
+
   const [hotels, setHotels] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [hasNext, setHasNext] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  if (user && user.role === "hotel" && user.id) {
+    return <Navigate to={`/hotels/${user.id}/rooms`} replace />;
+  }
 
   useEffect(() => {
     loadHotels();

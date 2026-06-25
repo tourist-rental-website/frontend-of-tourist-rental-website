@@ -70,12 +70,21 @@ const Navbar = () => {
 
         {/* Public Desktop Navigation Links */}
         <nav className="navbar-links">
-          <Link
-            to="/hotels"
-            className={`nav-link ${isActive("/hotels") ? "active" : ""}`}
-          >
-            Hotels
-          </Link>
+          {user && user.role === "hotel" && user.id ? (
+            <Link
+              to={`/hotels/${user.id}/rooms`}
+              className={`nav-link ${isActive(`/hotels/${user.id}/rooms`) ? "active" : ""}`}
+            >
+              My Rooms
+            </Link>
+          ) : (
+            <Link
+              to="/hotels"
+              className={`nav-link ${isActive("/hotels") ? "active" : ""}`}
+            >
+              Hotels
+            </Link>
+          )}
           <Link
             to="/guides"
             className={`nav-link ${isActive("/guides") ? "active" : ""}`}
@@ -164,11 +173,11 @@ const Navbar = () => {
 
                     {user.role === "hotel" && (
                       <>
-                        <Link to="/create-hotel-profile" className="dropdown-item">
-                          Hotel Profile
+                        <Link to={`/hotels/${user.id}/rooms`} className="dropdown-item">
+                          My Rooms
                         </Link>
                         <Link to="/create-room" className="dropdown-item">
-                          Create Room
+                          Add Room
                         </Link>
                       </>
                     )}
@@ -238,12 +247,21 @@ const Navbar = () => {
 
             {/* General Links in Mobile Drawer */}
             <div className="mobile-drawer-links">
-              <Link
-                to="/hotels"
-                className={`nav-link ${isActive("/hotels") ? "active" : ""}`}
-              >
-                Hotels
-              </Link>
+              {user && user.role === "hotel" && user.id ? (
+                <Link
+                  to={`/hotels/${user.id}/rooms`}
+                  className={`nav-link ${isActive(`/hotels/${user.id}/rooms`) ? "active" : ""}`}
+                >
+                  My Rooms
+                </Link>
+              ) : (
+                <Link
+                  to="/hotels"
+                  className={`nav-link ${isActive("/hotels") ? "active" : ""}`}
+                >
+                  Hotels
+                </Link>
+              )}
               <Link
                 to="/guides"
                 className={`nav-link ${isActive("/guides") ? "active" : ""}`}
@@ -314,11 +332,11 @@ const Navbar = () => {
 
                 {user.role === "hotel" && (
                   <>
-                    <Link to="/create-hotel-profile" className="nav-link">
-                      Hotel Profile
+                    <Link to={`/hotels/${user.id}/rooms`} className="nav-link">
+                      My Rooms
                     </Link>
                     <Link to="/create-room" className="nav-link">
-                      Create Room
+                      Add Room
                     </Link>
                   </>
                 )}

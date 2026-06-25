@@ -6,6 +6,7 @@ import { useState, useRef } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { User, Mail, Phone, Shield, CheckCircle, ShieldCheck, Camera, Upload, X } from "lucide-react";
 import { getImageUrl } from "../../utils/imageUtils";
+import { getErrorMessage } from "../../utils/errorUtils";
 
 const ProfilePage = () => {
   const { user, updateProfile } = useAuth();
@@ -55,10 +56,7 @@ const ProfilePage = () => {
       setMessage("Profile updated successfully!");
 
     } catch (err) {
-      setError(
-        err.response?.data?.detail ||
-        "Failed to update profile. Please try again."
-      );
+      setError(getErrorMessage(err, "Failed to update profile. Please try again."));
     } finally {
       setLoading(false);
     }
