@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { getGuides } from "../../api/listingsApi";
 import SearchBar from "../../components/SearchBar";
 import { MapPin, Languages, Calendar, Shield, Phone, Mail, Award } from "lucide-react";
+import { getImageUrl } from "../../utils/imageUtils";
 
 const GuidesListPage = () => {
   const [guides, setGuides] = useState([]);
@@ -97,7 +98,7 @@ const GuidesListPage = () => {
               <div className="flex-center" style={{ marginBottom: "1.25rem", gap: "1rem" }}>
                 {guide.profile_image ? (
                   <img 
-                    src={guide.profile_image} 
+                    src={getImageUrl(guide.profile_image)} 
                     alt={`${guide.first_name} ${guide.last_name}`} 
                     style={{ width: "56px", height: "56px", borderRadius: "50%", objectFit: "cover" }}
                   />

@@ -38,7 +38,15 @@ export const getGuides = async (page = 1) => {
  * @returns {Promise<Object>} Created guide profile
  */
 export const createGuideProfile = async (data) => {
-  const response = await axiosInstance.post("/listings/guides/create/", data);
+  const config = {};
+
+  if (data instanceof FormData) {
+    config.headers = {
+      "Content-Type": "multipart/form-data",
+    };
+  }
+
+  const response = await axiosInstance.post("/listings/guides/create/", data, config);
   return response.data;
 };
 

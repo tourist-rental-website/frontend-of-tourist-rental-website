@@ -2,12 +2,14 @@
  * ProfilePage.jsx — User Profile View & Edit
  */
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useAuth } from "../../context/AuthContext";
-import { User, Mail, Phone, Shield, CheckCircle, ShieldCheck } from "lucide-react";
+import { User, Mail, Phone, Shield, CheckCircle, ShieldCheck, Camera, Upload, X } from "lucide-react";
+import { getImageUrl } from "../../utils/imageUtils";
 
 const ProfilePage = () => {
   const { user, updateProfile } = useAuth();
+  const fileInputRef = useRef(null);
 
   const [form, setForm] = useState({
     first_name: user?.first_name || "",
@@ -17,6 +19,8 @@ const ProfilePage = () => {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [profileImageFile, setProfileImageFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
 
   const handleChange = (e) => {
     setForm({
@@ -30,15 +34,55 @@ const ProfilePage = () => {
     setMessage("");
     setError("");
     setLoading(true);
+
     try {
-      await updateProfile(form);
+
+      const formData = new FormData();
+
+      formData.append("first_name", form.first_name);
+      formData.append("last_name", form.last_name);
+      formData.append("phone", form.phone);
+
+      if (profileImageFile) {
+        formData.append(
+          "profile_image",
+          profileImageFile
+        );
+      }
+
+      await updateProfile(formData);
+
       setMessage("Profile updated successfully!");
+
     } catch (err) {
       setError(
-        err.response?.data?.detail || "Failed to update profile. Please try again."
+        err.response?.data?.detail ||
+        "Failed to update profile. Please try again."
       );
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0]
+    if (!file) return;
+    
+    setProfileImageFile(file);
+
+    const preview = URL.createObjectURL(file);
+    setPreviewUrl(preview);
+  }
+
+  /** Remove the selected image preview */
+  const handleRemoveImage = () => {
+    setProfileImageFile(null);
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
+    }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
   };
 
@@ -63,31 +107,76 @@ const ProfilePage = () => {
     }
   };
 
+  // Determine which image to show: preview (selected but unsaved) > existing profile image > fallback initials
+  const displayImageUrl = previewUrl || getImageUrl(user.profile_image);
+
   return (
     <div style={{ maxWidth: "800px", margin: "0 auto" }}>
       
       {/* Profile Title Header */}
       <div className="flex-between margin-bottom-sm" style={{ borderBottom: "1px solid var(--border-color)", paddingBottom: "1.5rem", marginBottom: "2rem" }}>
         <div className="flex-center" style={{ gap: "1.5rem" }}>
-          {/* Avatar Icon */}
+          {/* Avatar with clickable image upload */}
           <div 
+            onClick={() => fileInputRef.current?.click()}
             style={{ 
               width: "72px", 
               height: "72px", 
               borderRadius: "50%", 
-              background: "linear-gradient(135deg, var(--primary-color), var(--accent-color))",
+              background: displayImageUrl ? "transparent" : "linear-gradient(135deg, var(--primary-color), var(--accent-color))",
               color: "#fff",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               fontWeight: "700",
               fontSize: "1.5rem",
-              boxShadow: "0 4px 10px rgba(59, 130, 246, 0.2)"
+              boxShadow: "0 4px 10px rgba(59, 130, 246, 0.2)",
+              cursor: "pointer",
+              position: "relative",
+              overflow: "hidden",
             }}
           >
-            {user.first_name?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase()}
-            {user.last_name?.[0]?.toUpperCase() || ""}
+            {displayImageUrl ? (
+              <img 
+                src={displayImageUrl} 
+                alt={`${user.first_name} ${user.last_name}`}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+            ) : (
+              <>
+                {user.first_name?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase()}
+                {user.last_name?.[0]?.toUpperCase() || ""}
+              </>
+            )}
+
+            {/* Hover overlay with camera icon */}
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                background: "rgba(0, 0, 0, 0.45)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                opacity: 0,
+                transition: "opacity 0.2s ease",
+                borderRadius: "50%",
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.opacity = 1}
+              onMouseLeave={(e) => e.currentTarget.style.opacity = 0}
+            >
+              <Camera size={20} style={{ color: "#fff" }} />
+            </div>
           </div>
+
+          {/* Hidden file input */}
+          <input 
+            ref={fileInputRef}
+            type="file" 
+            accept="image/*" 
+            onChange={handleImageChange} 
+            style={{ display: "none" }} 
+          />
           
           <div>
             <h1 style={{ margin: "0 0 0.25rem", fontSize: "2rem" }}>
@@ -126,6 +215,49 @@ const ProfilePage = () => {
 
           <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
             
+            {/* Profile Image Upload Section */}
+            <div>
+              <label style={{ display: "block", fontSize: "0.85rem", fontWeight: "600", color: "var(--text-primary)", marginBottom: "0.75rem" }}>
+                Profile Photo
+              </label>
+              <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="btn btn-secondary"
+                  style={{ padding: "0.5rem 1rem", fontSize: "0.85rem" }}
+                >
+                  <Upload size={14} />
+                  <span>{displayImageUrl ? "Change Photo" : "Upload Photo"}</span>
+                </button>
+
+                {previewUrl && (
+                  <button
+                    type="button"
+                    onClick={handleRemoveImage}
+                    style={{ 
+                      background: "none", 
+                      border: "none", 
+                      color: "var(--accent-color)", 
+                      cursor: "pointer", 
+                      fontSize: "0.8rem",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.25rem",
+                      padding: "0.25rem 0",
+                    }}
+                  >
+                    <X size={12} />
+                    <span>Remove</span>
+                  </button>
+                )}
+
+                <span className="text-muted" style={{ fontSize: "0.75rem" }}>
+                  Click avatar or button to change
+                </span>
+              </div>
+            </div>
+
             {/* First & Last Name Fields */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
               <div>

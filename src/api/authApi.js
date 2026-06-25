@@ -68,6 +68,19 @@ export const getProfile = async () => {
  * @returns {Promise<Object>} Updated profile data
  */
 export const updateProfile = async (data) => {
-  const response = await axiosInstance.patch("/accounts/me/", data);
+  const config = {};
+
+  if (data instanceof FormData) {
+    config.headers = {
+      "Content-Type": "multipart/form-data",
+    };
+  }
+
+  const response = await axiosInstance.patch(
+    "/accounts/me/",
+    data,
+    config
+  );
+
   return response.data;
 };
